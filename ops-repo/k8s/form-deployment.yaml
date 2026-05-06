@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: form-service
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: form-service
+  template:
+    metadata:
+      labels:
+        app: form-service
+    spec:
+      containers:
+      - name: form-service
+        image: circleguard/form-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8086
+        envFrom:
+        - configMapRef:
+            name: circleguard-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: form-service
+
+spec:
+  selector:
+    app: form-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8086
+  type: ClusterIP

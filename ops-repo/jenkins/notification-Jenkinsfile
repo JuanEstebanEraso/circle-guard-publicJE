@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_HUB_USER = "circleguard"
+        SERVICE_NAME = "notification-service"
+        DOCKER_HUB_CREDENTIALS = "docker-hub-credentials"
+    }
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Build & Unit Tests (Dev)') {
+            steps {
+                echo "🚀 Construyendo y ejecutando pruebas unitarias en DEV..."
+                sh './gradlew :services:circleguard-notification-service:build'
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    docker.withRegistry("https://index.docker.io/v1/", "${DOCKER_HUB_CREDENTIALS}") {
+                        def customImage = docker.build("${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID}", "-f services/circleguard-notification-service/Dockerfile .")
+                        customImage.push()
+                        customImage.push("latest")
+                    }
+                }
+            }
+        }
+        stage('Deploy to Dev') {
+            steps {
+                echo "🚀 Desplegando en entorno de DESARROLLO (dev)..."
+                withKubeConfig([credentialsId: 'kubeconfig']) {
+                    sh "kubectl create namespace dev --dry-run=client -o yaml | kubectl apply -f -"
+                    sh "kubectl apply -f ops-repo/k8s/common-config.yaml --namespace dev"
+                    sh "kubectl apply -f ops-repo/k8s/notification-deployment.yaml --namespace dev"
+                    echo "🔍 Verificando despliegue en DEV..."
+                    sh "kubectl rollout status deployment/${SERVICE_NAME} --namespace dev --timeout=90s"
+                }
+            }
+        }
+        stage('Deploy & Test (Stage)') {
+            when { branch 'develop' }
+            steps {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
+                    sh "kubectl apply -f ops-repo/k8s/notification-deployment.yaml --namespace stage"
+                }
+                sh './gradlew :services:circleguard-notification-service:test'
+            }
+        }
+        stage('Deploy to Prod (Master)') {
+            when { branch 'main' }
+            steps {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
+                    sh "kubectl apply -f ops-repo/k8s/notification-deployment.yaml --namespace prod"
+                }
+            }
+        }
+        stage('Generate Release Notes') {
+            when { branch 'main' }
+            steps {
+                sh 'chmod +x ops-repo/jenkins/scripts/generate-release-notes.sh'
+                sh './ops-repo/jenkins/scripts/generate-release-notes.sh "CircleGuard Notification" ${env.BUILD_ID}'
+                archiveArtifacts artifacts: 'ReleaseNotes-*.md'
+            }
+        }
+    }
+}

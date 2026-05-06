@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: promotion-service
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: promotion-service
+  template:
+    metadata:
+      labels:
+        app: promotion-service
+    spec:
+      containers:
+      - name: promotion-service
+        image: circleguard/promotion-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8085
+        envFrom:
+        - configMapRef:
+            name: circleguard-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: promotion-service
+
+spec:
+  selector:
+    app: promotion-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8085
+  type: ClusterIP
