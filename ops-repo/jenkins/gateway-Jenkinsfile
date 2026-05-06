@@ -15,8 +15,19 @@ pipeline {
         // Fase 1: Entorno DEV (Punto 2)
         stage('Build & Unit Tests (Dev)') {
             steps {
-                echo "🚀 Construyendo y ejecutando pruebas unitarias en DEV..."
-                sh './gradlew :services:circleguard-gateway-service:build'
+                echo "🚀 Levantando infraestructura temporal (Redis)..."
+                sh 'docker-compose -f docker-compose.dev.yml up -d redis'
+                sh 'sleep 5'
+                script {
+                    try {
+                        echo "🚀 Construyendo y ejecutando pruebas unitarias e integración..."
+                        sh './gradlew :services:circleguard-gateway-service:build'
+                    } finally {
+                        echo "🧹 Limpiando infraestructura temporal..."
+                        sh 'docker-compose -f docker-compose.dev.yml stop redis'
+                        sh 'docker-compose -f docker-compose.dev.yml rm -f redis'
+                    }
+                }
             }
         }
         

@@ -11,8 +11,19 @@ pipeline {
         }
         stage('Build & Unit Tests (Dev)') {
             steps {
-                echo "🚀 Construyendo y ejecutando pruebas unitarias en DEV..."
-                sh './gradlew :services:circleguard-promotion-service:build'
+                echo "🚀 Levantando infraestructura temporal (Postgres/Kafka)..."
+                sh 'docker-compose -f docker-compose.dev.yml up -d postgres kafka'
+                sh 'sleep 15'
+                script {
+                    try {
+                        echo "🚀 Construyendo y ejecutando pruebas unitarias e integración..."
+                        sh './gradlew :services:circleguard-promotion-service:build'
+                    } finally {
+                        echo "🧹 Limpiando infraestructura temporal..."
+                        sh 'docker-compose -f docker-compose.dev.yml stop postgres kafka'
+                        sh 'docker-compose -f docker-compose.dev.yml rm -f postgres kafka'
+                    }
+                }
             }
         }
         stage('Docker Build & Push') {

@@ -15,8 +15,19 @@ pipeline {
         // Fase 1: Entorno DEV (Punto 2)
         stage('Build & Unit Tests (Dev)') {
             steps {
-                echo "🚀 Construyendo y ejecutando pruebas unitarias en DEV..."
-                sh './gradlew :services:circleguard-auth-service:build'
+                echo "🚀 Levantando infraestructura temporal (Postgres)..."
+                sh 'docker-compose -f docker-compose.dev.yml up -d postgres'
+                sh 'sleep 10'
+                script {
+                    try {
+                        echo "🚀 Construyendo y ejecutando pruebas unitarias e integración..."
+                        sh './gradlew :services:circleguard-auth-service:build'
+                    } finally {
+                        echo "🧹 Limpiando infraestructura temporal..."
+                        sh 'docker-compose -f docker-compose.dev.yml stop postgres'
+                        sh 'docker-compose -f docker-compose.dev.yml rm -f postgres'
+                    }
+                }
             }
         }
         
