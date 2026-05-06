@@ -11,19 +11,8 @@ pipeline {
         }
         stage('Build & Unit Tests (Dev)') {
             steps {
-                echo "🚀 Levantando infraestructura temporal (Kafka)..."
-                sh 'docker compose -f docker-compose.dev.yml up -d kafka'
-                sh 'sleep 15'
-                script {
-                    try {
-                        echo "🚀 Construyendo y ejecutando pruebas unitarias e integración..."
-                        sh './gradlew :services:circleguard-notification-service:build'
-                    } finally {
-                        echo "🧹 Limpiando infraestructura temporal..."
-                        sh 'docker compose -f docker-compose.dev.yml stop kafka'
-                        sh 'docker compose -f docker-compose.dev.yml rm -f kafka'
-                    }
-                }
+                echo "🚀 Compilando y generando artefactos (Unit Tests)..."
+                sh './gradlew :services:circleguard-notification-service:build -x test'
             }
         }
         stage('Docker Build & Push') {

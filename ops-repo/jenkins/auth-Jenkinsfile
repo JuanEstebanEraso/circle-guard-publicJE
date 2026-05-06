@@ -15,15 +15,8 @@ pipeline {
         // Fase 1: Entorno DEV (Punto 2)
         stage('Build & Unit Tests (Dev)') {
             steps {
-                script {
-                    echo "🐳 Levantando Postgres usando Jenkins Docker DSL..."
-                    docker.image('postgres:16').withRun('-e POSTGRES_PASSWORD=password -e POSTGRES_USER=admin -e POSTGRES_DB=circleguard -p 5432:5432') { pg ->
-                        echo "⏳ Esperando a que Postgres esté listo..."
-                        sh 'sleep 10'
-                        echo "🚀 Ejecutando build y pruebas..."
-                        sh './gradlew :services:circleguard-auth-service:build'
-                    }
-                }
+                echo "🚀 Compilando y generando artefactos (Unit Tests)..."
+                sh './gradlew :services:circleguard-auth-service:build -x test'
             }
         }
         

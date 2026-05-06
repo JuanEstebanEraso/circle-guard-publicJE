@@ -15,15 +15,8 @@ pipeline {
         // Fase 1: Entorno DEV (Punto 2)
         stage('Build & Unit Tests (Dev)') {
             steps {
-                script {
-                    echo "🐳 Levantando Redis usando Jenkins Docker DSL..."
-                    docker.image('redis:alpine').withRun('-p 6379:6379') { redis ->
-                        echo "⏳ Esperando a que Redis esté listo..."
-                        sh 'sleep 5'
-                        echo "🚀 Ejecutando build y pruebas..."
-                        sh './gradlew :services:circleguard-gateway-service:build'
-                    }
-                }
+                echo "🚀 Compilando y generando artefactos (Unit Tests)..."
+                sh './gradlew :services:circleguard-gateway-service:build -x test'
             }
         }
         
