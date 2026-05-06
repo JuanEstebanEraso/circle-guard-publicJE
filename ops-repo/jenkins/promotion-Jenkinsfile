@@ -20,14 +20,11 @@ pipeline {
         }
             }
         }
-        stage('Docker Build & Push') {
+        stage('Docker Build') {
             steps {
                 script {
-                    docker.withRegistry("https://index.docker.io/v1/", "${DOCKER_HUB_CREDENTIALS}") {
-                        def customImage = docker.build("${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID}", "-f services/circleguard-promotion-service/Dockerfile .")
-                        customImage.push()
-                        customImage.push("latest")
-                    }
+                    echo "🔨 Construyendo imagen Docker localmente..."
+                    sh "docker build -t ${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID} -t ${DOCKER_HUB_USER}/${SERVICE_NAME}:latest -f services/circleguard-promotion-service/Dockerfile ."
                 }
             }
         }
