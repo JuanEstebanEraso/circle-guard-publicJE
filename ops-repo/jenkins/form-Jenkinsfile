@@ -13,8 +13,10 @@ pipeline {
         }
         stage('Build & Unit Tests (Dev)') {
             steps {
+                echo "🐳 Verificando Docker..."
+                sh 'docker --version'
                 echo "🚀 Levantando infraestructura temporal (DB/Kafka)..."
-                sh 'docker-compose -f docker-compose.dev.yml up -d postgres kafka redis'
+                sh 'docker compose -f docker-compose.dev.yml up -d postgres kafka redis'
                 echo "⏳ Esperando a que los servicios estén listos..."
                 sh 'sleep 15'
                 
@@ -24,8 +26,8 @@ pipeline {
                         sh './gradlew :services:circleguard-form-service:build'
                     } finally {
                         echo "🧹 Limpiando infraestructura temporal..."
-                        sh 'docker-compose -f docker-compose.dev.yml stop postgres kafka redis'
-                        sh 'docker-compose -f docker-compose.dev.yml rm -f postgres kafka redis'
+                        sh 'docker compose -f docker-compose.dev.yml stop postgres kafka redis'
+                        sh 'docker compose -f docker-compose.dev.yml rm -f postgres kafka redis'
                     }
                 }
             }

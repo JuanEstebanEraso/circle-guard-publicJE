@@ -16,7 +16,7 @@ pipeline {
         stage('Build & Unit Tests (Dev)') {
             steps {
                 echo "🚀 Levantando infraestructura temporal (Redis)..."
-                sh 'docker-compose -f docker-compose.dev.yml up -d redis'
+                sh 'docker compose -f docker-compose.dev.yml up -d redis'
                 sh 'sleep 5'
                 script {
                     try {
@@ -24,8 +24,8 @@ pipeline {
                         sh './gradlew :services:circleguard-gateway-service:build'
                     } finally {
                         echo "🧹 Limpiando infraestructura temporal..."
-                        sh 'docker-compose -f docker-compose.dev.yml stop redis'
-                        sh 'docker-compose -f docker-compose.dev.yml rm -f redis'
+                        sh 'docker compose -f docker-compose.dev.yml stop redis'
+                        sh 'docker compose -f docker-compose.dev.yml rm -f redis'
                     }
                 }
             }

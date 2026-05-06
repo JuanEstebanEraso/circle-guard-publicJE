@@ -16,7 +16,7 @@ pipeline {
         stage('Build & Unit Tests (Dev)') {
             steps {
                 echo "🚀 Levantando infraestructura temporal (Postgres)..."
-                sh 'docker-compose -f docker-compose.dev.yml up -d postgres'
+                sh 'docker compose -f docker-compose.dev.yml up -d postgres'
                 sh 'sleep 10'
                 script {
                     try {
@@ -24,8 +24,8 @@ pipeline {
                         sh './gradlew :services:circleguard-auth-service:build'
                     } finally {
                         echo "🧹 Limpiando infraestructura temporal..."
-                        sh 'docker-compose -f docker-compose.dev.yml stop postgres'
-                        sh 'docker-compose -f docker-compose.dev.yml rm -f postgres'
+                        sh 'docker compose -f docker-compose.dev.yml stop postgres'
+                        sh 'docker compose -f docker-compose.dev.yml rm -f postgres'
                     }
                 }
             }
