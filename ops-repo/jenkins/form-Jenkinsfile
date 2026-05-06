@@ -17,10 +17,15 @@ pipeline {
                     echo "🐳 Levantando Postgres y Redis usando Jenkins Docker DSL..."
                     docker.image('postgres:16').withRun('-e POSTGRES_PASSWORD=password -e POSTGRES_USER=admin -e POSTGRES_DB=circleguard -p 5432:5432') { pg ->
                         docker.image('redis:alpine').withRun('-p 6379:6379') { redis ->
+                            echo "⏳ Detectando IP del Host de Docker..."
+                            def dockerHostIp = sh(script: "ip route show | grep -Po 'default via \\K[\\d.]+'", returnStdout: true).trim()
+                            echo "📍 Host IP detectada: ${dockerHostIp}"
+                            
                             echo "⏳ Esperando a que los servicios estén listos..."
                             sh 'sleep 15'
+                            
                             echo "🚀 Ejecutando build y pruebas..."
-                            sh './gradlew :services:circleguard-form-service:build'
+                            sh "./gradlew :services:circleguard-form-service:build -Dspring.datasource.url=jdbc:postgresql://${dockerHostIp}:5432/circleguard -Dspring.data.redis.host=${dockerHostIp}"
                         }
                     }
                 }
