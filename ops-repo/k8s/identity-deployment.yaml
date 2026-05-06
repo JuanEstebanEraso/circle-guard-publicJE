@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: identity-service
-        image: circleguard/identity-service:latest
+        image: juanestebaneraso/identity-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8082

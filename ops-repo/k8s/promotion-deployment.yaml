@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: promotion-service
-        image: circleguard/promotion-service:latest
+        image: juanestebaneraso/promotion-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8085

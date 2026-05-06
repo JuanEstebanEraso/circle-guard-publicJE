@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: form-service
-        image: circleguard/form-service:latest
+        image: juanestebaneraso/form-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8086
