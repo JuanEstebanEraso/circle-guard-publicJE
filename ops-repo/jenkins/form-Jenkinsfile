@@ -13,8 +13,6 @@ pipeline {
         }
         stage('Build & Unit Tests (Dev)') {
             steps {
-        stage('Build & Unit Tests (Dev)') {
-            steps {
                 script {
                     def networkName = "cg-net-${env.BUILD_ID}"
                     echo "🌐 Creando red de Docker: ${networkName}"
@@ -40,8 +38,6 @@ pipeline {
                         sh "docker network rm ${networkName} || true"
                     }
                 }
-            }
-        }
             }
         }
         stage('Docker Build & Push') {
