@@ -13,22 +13,35 @@ pipeline {
         }
         stage('Build & Unit Tests (Dev)') {
             steps {
+        stage('Build & Unit Tests (Dev)') {
+            steps {
                 script {
-                    echo "🐳 Levantando Postgres y Redis usando Jenkins Docker DSL..."
-                    docker.image('postgres:16').withRun('-e POSTGRES_PASSWORD=password -e POSTGRES_USER=admin -e POSTGRES_DB=circleguard -p 5432:5432') { pg ->
-                        docker.image('redis:alpine').withRun('-p 6379:6379') { redis ->
-                            echo "⏳ Detectando IP del Host de Docker..."
-                            def dockerHostIp = sh(script: "ip route show | grep -Po 'default via \\K[\\d.]+'", returnStdout: true).trim()
-                            echo "📍 Host IP detectada: ${dockerHostIp}"
-                            
-                            echo "⏳ Esperando a que los servicios estén listos..."
-                            sh 'sleep 15'
-                            
-                            echo "🚀 Ejecutando build y pruebas..."
-                            sh "./gradlew :services:circleguard-form-service:build -Dspring.datasource.url=jdbc:postgresql://${dockerHostIp}:5432/circleguard -Dspring.data.redis.host=${dockerHostIp}"
+                    def networkName = "cg-net-${env.BUILD_ID}"
+                    echo "🌐 Creando red de Docker: ${networkName}"
+                    sh "docker network create ${networkName}"
+                    
+                    try {
+                        echo "🐳 Levantando servicios de soporte en la red..."
+                        docker.image('postgres:16').withRun("--network ${networkName} --name db-form-${env.BUILD_ID} -e POSTGRES_PASSWORD=password -e POSTGRES_USER=admin -e POSTGRES_DB=circleguard") { pg ->
+                            docker.image('redis:alpine').withRun("--network ${networkName} --name redis-form-${env.BUILD_ID}") { redis ->
+                                
+                                echo "⏳ Ejecutando Build dentro de un contenedor Gradle (en la misma red)..."
+                                docker.image('gradle:8.14-jdk21-alpine').inside("--network ${networkName} -u root") {
+                                    sh 'sleep 20' // Tiempo para que Postgres inicie
+                                    sh "./gradlew :services:circleguard-form-service:build " +
+                                       "-Dspring.datasource.url=jdbc:postgresql://db-form-${env.BUILD_ID}:5432/circleguard " +
+                                       "-Dspring.data.redis.host=redis-form-${env.BUILD_ID} " +
+                                       "-Dspring.kafka.bootstrap-servers=none" // Kafka lo validaremos en Stage
+                                }
+                            }
                         }
+                    } finally {
+                        echo "🧹 Eliminando red de Docker..."
+                        sh "docker network rm ${networkName} || true"
                     }
                 }
+            }
+        }
             }
         }
         stage('Docker Build & Push') {
