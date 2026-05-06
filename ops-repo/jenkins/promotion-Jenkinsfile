@@ -12,18 +12,19 @@ pipeline {
         stage('Build & Unit Tests (Dev)') {
             steps {
                 echo "🚀 Levantando infraestructura temporal (Postgres/Kafka)..."
-                sh 'docker compose -f docker-compose.dev.yml up -d postgres kafka'
-                sh 'sleep 15'
+        stage('Build & Unit Tests (Dev)') {
+            steps {
                 script {
-                    try {
-                        echo "🚀 Construyendo y ejecutando pruebas unitarias e integración..."
+                    echo "🐳 Levantando Postgres usando Jenkins Docker DSL..."
+                    docker.image('postgres:16').withRun('-e POSTGRES_PASSWORD=password -e POSTGRES_USER=admin -e POSTGRES_DB=circleguard -p 5432:5432') { pg ->
+                        echo "⏳ Esperando a que Postgres esté listo..."
+                        sh 'sleep 10'
+                        echo "🚀 Ejecutando build y pruebas..."
                         sh './gradlew :services:circleguard-promotion-service:build'
-                    } finally {
-                        echo "🧹 Limpiando infraestructura temporal..."
-                        sh 'docker compose -f docker-compose.dev.yml stop postgres kafka'
-                        sh 'docker compose -f docker-compose.dev.yml rm -f postgres kafka'
                     }
                 }
+            }
+        }
             }
         }
         stage('Docker Build & Push') {

@@ -13,21 +13,15 @@ pipeline {
         }
         stage('Build & Unit Tests (Dev)') {
             steps {
-                echo "🐳 Verificando Docker..."
-                sh 'docker --version'
-                echo "🚀 Levantando infraestructura temporal (DB/Kafka)..."
-                sh 'docker compose -f docker-compose.dev.yml up -d postgres kafka redis'
-                echo "⏳ Esperando a que los servicios estén listos..."
-                sh 'sleep 15'
-                
                 script {
-                    try {
-                        echo "🚀 Construyendo y ejecutando pruebas unitarias e integración..."
-                        sh './gradlew :services:circleguard-form-service:build'
-                    } finally {
-                        echo "🧹 Limpiando infraestructura temporal..."
-                        sh 'docker compose -f docker-compose.dev.yml stop postgres kafka redis'
-                        sh 'docker compose -f docker-compose.dev.yml rm -f postgres kafka redis'
+                    echo "🐳 Levantando Postgres y Redis usando Jenkins Docker DSL..."
+                    docker.image('postgres:16').withRun('-e POSTGRES_PASSWORD=password -e POSTGRES_USER=admin -e POSTGRES_DB=circleguard -p 5432:5432') { pg ->
+                        docker.image('redis:alpine').withRun('-p 6379:6379') { redis ->
+                            echo "⏳ Esperando a que los servicios estén listos..."
+                            sh 'sleep 15'
+                            echo "🚀 Ejecutando build y pruebas..."
+                            sh './gradlew :services:circleguard-form-service:build'
+                        }
                     }
                 }
             }
