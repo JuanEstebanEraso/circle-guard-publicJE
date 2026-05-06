@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circleguard-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: circleguard-postgres
+  template:
+    metadata:
+      labels:
+        app: circleguard-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_PASSWORD
+          value: "password"
+        - name: POSTGRES_USER
+          value: "admin"
+        - name: POSTGRES_DB
+          value: "circleguard_form"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: circleguard-postgres
+spec:
+  selector:
+    app: circleguard-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circleguard-kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: circleguard-kafka
+  template:
+    metadata:
+      labels:
+        app: circleguard-kafka
+    spec:
+      containers:
+      - name: kafka
+        image: bitnami/kafka:latest
+        ports:
+        - containerPort: 9092
+        env:
+        - name: KAFKA_CFG_NODE_ID
+          value: "0"
+        - name: KAFKA_CFG_PROCESS_ROLES
+          value: "controller,broker"
+        - name: KAFKA_CFG_LISTENERS
+          value: "PLAINTEXT://:9092,CONTROLLER://:9093"
+        - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+        - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+          value: "0@circleguard-kafka:9093"
+        - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+          value: "CONTROLLER"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: circleguard-kafka
+spec:
+  selector:
+    app: circleguard-kafka
+  ports:
+    - protocol: TCP
+      port: 9092
+      targetPort: 9092
