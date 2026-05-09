@@ -11,14 +11,10 @@ pipeline {
         }
         stage('Build & Unit Tests (Dev)') {
             steps {
-                echo "🚀 Levantando infraestructura temporal (Postgres/Kafka)..."
-        stage('Build & Unit Tests (Dev)') {
-            steps {
                 echo "🚀 Compilando y generando artefactos (Unit Tests)..."
                 sh './gradlew :services:circleguard-promotion-service:build -x test'
             }
         }
-            }
         }
         stage('Docker Build & Push') {
             steps {
