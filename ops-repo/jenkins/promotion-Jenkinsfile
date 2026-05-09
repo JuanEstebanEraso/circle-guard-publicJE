@@ -15,7 +15,6 @@ pipeline {
                 sh './gradlew :services:circleguard-promotion-service:build -x test'
             }
         }
-        }
         stage('Docker Build & Push') {
             steps {
                 script {
