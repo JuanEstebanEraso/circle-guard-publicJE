@@ -16,3 +16,7 @@ data:
   # Redis Configuration
   REDIS_HOST: "circleguard-redis"
   REDIS_PORT: "6379"
+
+  # LDAP Configuration
+  LDAP_HOST: "circleguard-ldap"
+  LDAP_PORT: "389"
