@@ -2,8 +2,8 @@ spring:
   application:
     name: circleguard-auth-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/circleguard_auth
-    username: admin
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/circleguard_auth
+    username: ${POSTGRES_USER:admin}
     password: password
     driver-class-name: org.postgresql.Driver
   jpa:
@@ -13,7 +13,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   ldap:
-    urls: ldap://localhost:389
+    urls: ldap://${LDAP_HOST:localhost}:${LDAP_PORT:389}
     base: dc=circleguard,dc=edu
     username: cn=admin,dc=circleguard,dc=edu
     password: admin
