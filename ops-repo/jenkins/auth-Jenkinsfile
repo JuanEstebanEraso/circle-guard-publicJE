@@ -44,11 +44,11 @@ pipeline {
             steps {
                 echo "🚀 Desplegando en entorno de DESARROLLO (dev)..."
                 withKubeConfig([credentialsId: 'kubeconfig']) {
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify create namespace dev --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify apply -f ops-repo/k8s/common-config.yaml --namespace dev"
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify apply -f ops-repo/k8s/auth-deployment.yaml --namespace dev"
+                    sh "kubectl --insecure-skip-tls-verify create namespace dev --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
+                    sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/common-config.yaml --namespace dev"
+                    sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/auth-deployment.yaml --namespace dev"
                     echo "🔍 Verificando despliegue en DEV..."
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify rollout status deployment/${SERVICE_NAME} --namespace dev --timeout=90s"
+                    sh "kubectl --insecure-skip-tls-verify rollout status deployment/${SERVICE_NAME} --namespace dev --timeout=90s"
                 }
             }
         }
@@ -61,8 +61,8 @@ pipeline {
             steps {
                 echo "🚀 Desplegando en STAGE..."
                 withKubeConfig([credentialsId: 'kubeconfig']) {
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify create namespace stage --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify apply -f ops-repo/k8s/auth-deployment.yaml --namespace stage"
+                    sh "kubectl --insecure-skip-tls-verify create namespace stage --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
+                    sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/auth-deployment.yaml --namespace stage"
                 }
                 // Aquí se ejecutarían las pruebas de integración
                 sh './gradlew :services:circleguard-auth-service:test'
@@ -72,20 +72,20 @@ pipeline {
         // Fase 3: Entorno MASTER / PROD (Punto 5)
         stage('Deploy to Prod (Master)') {
             when {
-                branch 'main'
+                branch 'master'
             }
             steps {
                 echo "🚀 Desplegando en PRODUCCIÓN..."
                 withKubeConfig([credentialsId: 'kubeconfig']) {
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify create namespace prod --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify apply -f ops-repo/k8s/auth-deployment.yaml --namespace prod"
+                    sh "kubectl --insecure-skip-tls-verify create namespace prod --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
+                    sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/auth-deployment.yaml --namespace prod"
                 }
             }
         }
         
         stage('Generate Release Notes') {
             when {
-                branch 'main'
+                branch 'master'
             }
             steps {
                 echo "📝 Generando Release Notes..."

@@ -56,7 +56,7 @@ pipeline {
             }
         }
         stage('Deploy to Prod (Master)') {
-            when { branch 'main' }
+            when { branch 'master' }
             steps {
                 withKubeConfig([credentialsId: 'kubeconfig']) {
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/notification-deployment.yaml --namespace prod"
@@ -64,7 +64,7 @@ pipeline {
             }
         }
         stage('Generate Release Notes') {
-            when { branch 'main' }
+            when { branch 'master' }
             steps {
                 sh 'chmod +x ops-repo/jenkins/scripts/generate-release-notes.sh'
                 sh './ops-repo/jenkins/scripts/generate-release-notes.sh "CircleGuard Notification" ${env.BUILD_ID}'

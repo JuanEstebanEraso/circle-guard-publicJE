@@ -74,7 +74,7 @@ pipeline {
         stage('Deploy to Prod (Master)') {
             when {
                 // Solo se ejecuta si aprobamos un merge a 'main'
-                branch 'main'
+                branch 'master'
             }
             steps {
                 echo "🚀 Desplegando en PRODUCCIÓN..."
@@ -87,7 +87,7 @@ pipeline {
         
         stage('Generate Release Notes') {
             when {
-                branch 'main'
+                branch 'master'
             }
             steps {
                 echo "📝 Generando Release Notes..."
