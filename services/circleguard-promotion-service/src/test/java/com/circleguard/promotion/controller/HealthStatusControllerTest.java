@@ -15,8 +15,13 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.springframework.test.context.TestPropertySource;
+
 @WebMvcTest(HealthStatusController.class)
 @Import(SecurityConfig.class)
+@TestPropertySource(properties = {
+    "jwt.secret=my-super-secret-test-key-32-chars-long-promotion-service-123456"
+})
 class HealthStatusControllerTest {
 
     @Autowired
@@ -26,7 +31,7 @@ class HealthStatusControllerTest {
     private HealthStatusService statusService;
 
     @Test
-    @WithMockUser(authorities = "HEALTH_CENTER")
+    @WithMockUser(roles = "HEALTH_CENTER")
     void confirmPositive_WithPermission_CallsUpdateStatus() throws Exception {
         String json = "{\"anonymousId\": \"user-1\"}";
 
@@ -39,7 +44,7 @@ class HealthStatusControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "HEALTH_CENTER")
+    @WithMockUser(roles = "HEALTH_CENTER")
     void resolve_WithPermission_CallsResolveStatus() throws Exception {
         String json = "{\"anonymousId\": \"user-1\"}";
 

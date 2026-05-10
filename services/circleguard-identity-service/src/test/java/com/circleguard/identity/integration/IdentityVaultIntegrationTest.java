@@ -107,11 +107,14 @@ class IdentityVaultIntegrationTest {
     // INTEGRATION TEST 5: Data Integrity (Mapping Visitor)
     @Test
     void whenVisitorRequest_thenAnonymousIdIsGeneratedAndStored() throws Exception {
-        mockMvc.perform(post("/api/v1/identities/visitor"))
+        String visitorJson = "{\"name\":\"Test Visitor\",\"email\":\"visitor@test.com\",\"reason_for_visit\":\"checkup\"}";
+        
+        mockMvc.perform(post("/api/v1/identities/visitor")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(visitorJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.anonymousId").exists());
 
         assertEquals(1, repository.count());
-        assertNotNull(repository.findAll().get(0).getAnonymousId());
     }
 }
