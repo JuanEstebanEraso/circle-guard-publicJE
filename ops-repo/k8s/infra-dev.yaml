@@ -53,7 +53,7 @@ spec:
     spec:
       containers:
       - name: kafka
-        image: bitnami/kafka:latest
+        image: bitnami/kafka:3.4.0
         ports:
         - containerPort: 9092
         env:

@@ -2,7 +2,7 @@ spring:
   application:
     name: circleguard-promotion-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/circleguard_promotion
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/circleguard_promotion
     username: admin
     password: password
     driver-class-name: org.postgresql.Driver
@@ -13,12 +13,12 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   neo4j:
-    uri: bolt://localhost:7687
+    uri: bolt://${NEO4J_HOST:localhost}:7687
     authentication:
       username: neo4j
       password: password
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_HOST:localhost}:9092
     consumer:
       group-id: promotion-service-group
       auto-offset-reset: earliest
@@ -28,7 +28,7 @@ spring:
         spring.json.trusted.packages: "*"
   data:
     redis:
-      host: localhost
+      host: ${REDIS_HOST:localhost}
       port: 6379
 
 server:
