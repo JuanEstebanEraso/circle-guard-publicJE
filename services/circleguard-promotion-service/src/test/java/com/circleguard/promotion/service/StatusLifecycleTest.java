@@ -28,8 +28,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
 @SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
 @ActiveProfiles("test")
+@Testcontainers
 @DisabledIfEnvironmentVariable(named = "JENKINS_HOME", matches = ".*")
 class StatusLifecycleTest {
 

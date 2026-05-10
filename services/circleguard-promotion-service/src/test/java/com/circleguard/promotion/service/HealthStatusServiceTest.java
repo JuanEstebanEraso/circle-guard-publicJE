@@ -28,9 +28,13 @@ import com.circleguard.promotion.model.jpa.SystemSettings;
 import com.circleguard.promotion.repository.jpa.SystemSettingsRepository;
 import java.util.Optional;
 
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
 @SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
+@Testcontainers
 @DisabledIfEnvironmentVariable(named = "JENKINS_HOME", matches = ".*")
 class HealthStatusServiceTest {
 
