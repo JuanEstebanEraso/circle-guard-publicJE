@@ -44,7 +44,7 @@ pipeline {
             steps {
                 echo "🚀 Desplegando en entorno de DESARROLLO (dev)..."
                 withKubeConfig([credentialsId: 'kubeconfig']) {
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify create namespace dev --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply --insecure-skip-tls-verify -f -"
+                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify create namespace dev --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
                     sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify apply -f ops-repo/k8s/common-config.yaml --namespace dev"
                     sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify apply -f ops-repo/k8s/auth-deployment.yaml --namespace dev"
                     echo "🔍 Verificando despliegue en DEV..."
@@ -61,7 +61,7 @@ pipeline {
             steps {
                 echo "🚀 Desplegando en STAGE..."
                 withKubeConfig([credentialsId: 'kubeconfig']) {
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify create namespace stage --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply --insecure-skip-tls-verify -f -"
+                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify create namespace stage --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
                     sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify apply -f ops-repo/k8s/auth-deployment.yaml --namespace stage"
                 }
                 // Aquí se ejecutarían las pruebas de integración
@@ -77,7 +77,7 @@ pipeline {
             steps {
                 echo "🚀 Desplegando en PRODUCCIÓN..."
                 withKubeConfig([credentialsId: 'kubeconfig']) {
-                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify create namespace prod --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply --insecure-skip-tls-verify -f -"
+                    sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify create namespace prod --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
                     sh "kubectl --insecure-skip-tls-verify --insecure-skip-tls-verify apply -f ops-repo/k8s/auth-deployment.yaml --namespace prod"
                 }
             }
@@ -96,4 +96,5 @@ pipeline {
         }
     }
 }
+
 
