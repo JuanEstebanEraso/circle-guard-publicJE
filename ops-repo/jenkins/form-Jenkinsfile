@@ -39,7 +39,7 @@ pipeline {
         stage('Deploy to Dev') {
             steps {
                 echo "🚀 Desplegando en entorno de DESARROLLO (dev)..."
-                withKubeConfig([credentialsId: 'kubeconfig', insecure: true]) {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
                     sh "kubectl --insecure-skip-tls-verify create namespace dev --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/common-config.yaml --namespace dev"
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/form-deployment.yaml --namespace dev"
@@ -51,7 +51,7 @@ pipeline {
         stage('Deploy & Test (Stage)') {
             when { branch 'develop' }
             steps {
-                withKubeConfig([credentialsId: 'kubeconfig', insecure: true]) {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/form-deployment.yaml --namespace stage"
                 }
                 sh './gradlew :services:circleguard-form-service:test'
@@ -60,7 +60,7 @@ pipeline {
         stage('Deploy to Prod (Master)') {
             when { branch 'main' }
             steps {
-                withKubeConfig([credentialsId: 'kubeconfig', insecure: true]) {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/form-deployment.yaml --namespace prod"
                 }
             }
@@ -75,3 +75,4 @@ pipeline {
         }
     }
 }
+

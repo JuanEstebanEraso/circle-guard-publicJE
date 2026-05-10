@@ -43,7 +43,7 @@ pipeline {
         stage('Deploy to Dev') {
             steps {
                 echo "🚀 Desplegando en entorno de DESARROLLO (dev)..."
-                withKubeConfig([credentialsId: 'kubeconfig', insecure: true]) {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
                     sh "kubectl --insecure-skip-tls-verify create namespace dev --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/common-config.yaml --namespace dev"
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/gateway-deployment.yaml --namespace dev"
@@ -61,7 +61,7 @@ pipeline {
             }
             steps {
                 echo "🚀 Desplegando en STAGE y ejecutando pruebas de sistema..."
-                withKubeConfig([credentialsId: 'kubeconfig', insecure: true]) {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
                     sh "kubectl --insecure-skip-tls-verify create namespace stage --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/gateway-deployment.yaml --namespace stage"
                 }
@@ -78,7 +78,7 @@ pipeline {
             }
             steps {
                 echo "🚀 Desplegando en PRODUCCIÓN..."
-                withKubeConfig([credentialsId: 'kubeconfig', insecure: true]) {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
                     sh "kubectl --insecure-skip-tls-verify create namespace prod --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/gateway-deployment.yaml --namespace prod"
                 }
@@ -99,4 +99,5 @@ pipeline {
         }
     }
 }
+
 
