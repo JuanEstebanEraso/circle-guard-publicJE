@@ -30,8 +30,8 @@ public class JwtTokenServiceTest {
     void shouldGenerateValidTokenWithCorrectClaims() {
         UUID anonymousId = UUID.randomUUID();
         Authentication auth = Mockito.mock(Authentication.class);
-        Mockito.when(auth.getAuthorities())
-               .thenReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_STUDENT")));
+        Mockito.doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_STUDENT")))
+               .when(auth).getAuthorities();
 
         String token = service.generateToken(anonymousId, auth);
 
@@ -55,7 +55,7 @@ public class JwtTokenServiceTest {
     void generatedTokenShouldHaveCorrectExpiration() {
         UUID anonymousId = UUID.randomUUID();
         Authentication auth = Mockito.mock(Authentication.class);
-        Mockito.when(auth.getAuthorities()).thenReturn(Collections.emptyList());
+        Mockito.doReturn(Collections.emptyList()).when(auth).getAuthorities();
 
         long before = System.currentTimeMillis();
         String token = service.generateToken(anonymousId, auth);

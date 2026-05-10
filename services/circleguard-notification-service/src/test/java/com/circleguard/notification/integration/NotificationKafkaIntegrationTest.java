@@ -24,20 +24,20 @@ public class NotificationKafkaIntegrationTest {
     @MockBean
     private NotificationDispatcher dispatcher;
 
+    @MockBean
+    private LmsService lmsService;
+
     // INTEGRATION TEST 5: Validates Notification Service processes Kafka messages and triggers Dispatcher
     @Test
     void whenKafkaMessageReceived_thenDispatcherIsCalled() {
         String anonymousId = UUID.randomUUID().toString();
-        Map<String, Object> payload = Map.of(
-            "anonymousId", anonymousId,
-            "status", "PROBABLE"
-        );
+        String eventJson = String.format("{\"anonymousId\":\"%s\", \"status\":\"PROBABLE\"}", anonymousId);
 
         // Simulate Kafka delivering the message to the listener
-        listener.handleStatusChange(payload, anonymousId);
+        listener.handleStatusChange(eventJson);
 
         // Verify Integration: Dispatcher should be called
-        verify(dispatcher).dispatchHealthAlert(
+        verify(dispatcher).dispatch(
             eq(anonymousId),
             eq("PROBABLE")
         );
