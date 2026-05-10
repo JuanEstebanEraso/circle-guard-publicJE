@@ -13,10 +13,17 @@ pipeline {
         }
         
         // Fase 1: Entorno DEV (Punto 2)
-        stage('Build & Unit Tests (Dev)') {
+        stage('Compile (Dev)') {
             steps {
-                echo "🚀 Compilando y generando artefactos (Unit Tests)..."
-                sh './gradlew :services:circleguard-auth-service:build -x test'
+                echo "🚀 Compilando microservicio..."
+                sh './gradlew :services:circleguard-auth-service:classes'
+            }
+        }
+
+        stage('Unit Tests (Dev)') {
+            steps {
+                echo "🧪 Ejecutando Pruebas Unitarias..."
+                sh './gradlew :services:circleguard-auth-service:test'
             }
         }
         

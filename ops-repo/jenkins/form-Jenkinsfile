@@ -11,11 +11,17 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build & Unit Tests (Dev)') {
+        stage('Compile (Dev)') {
             steps {
-                echo "🚀 Compilando y generando artefactos (Unit Tests)..."
-                // Compilamos saltando los tests de integración que requieren DB/Kafka
-                sh './gradlew :services:circleguard-form-service:build -x test'
+                echo "🚀 Compilando microservicio..."
+                sh './gradlew :services:circleguard-form-service:classes'
+            }
+        }
+
+        stage('Unit Tests (Dev)') {
+            steps {
+                echo "🧪 Ejecutando Pruebas Unitarias..."
+                sh './gradlew :services:circleguard-form-service:test'
             }
         }
         stage('Docker Build & Push') {

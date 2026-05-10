@@ -5,8 +5,8 @@ spring:
     problemdetails:
       enabled: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/circleguard_identity
-    username: admin
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/circleguard_identity
+    username: ${POSTGRES_USER:admin}
     password: password
     driver-class-name: org.postgresql.Driver
   jpa:
