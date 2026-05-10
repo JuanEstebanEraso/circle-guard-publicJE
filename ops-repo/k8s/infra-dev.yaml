@@ -53,7 +53,7 @@ spec:
     spec:
       containers:
       - name: kafka
-        image: bitnami/kafka:3.4.0
+        image: bitnami/kafka:3.7.1-debian-12-r1
         ports:
         - containerPort: 9092
         env:
@@ -120,3 +120,35 @@ spec:
     - protocol: TCP
       port: 389
       targetPort: 389
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circleguard-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: circleguard-redis
+  template:
+    metadata:
+      labels:
+        app: circleguard-redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7.2-alpine
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: circleguard-redis
+spec:
+  selector:
+    app: circleguard-redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
