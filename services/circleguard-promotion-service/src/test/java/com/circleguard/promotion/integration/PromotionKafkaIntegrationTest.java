@@ -53,15 +53,15 @@ public class PromotionKafkaIntegrationTest {
         String anonymousId = UUID.randomUUID().toString();
         
         // Mock Neo4j Client behavior to simulate a successful query
+        Neo4jClient.UnboundRunnableSpec unboundRunnableSpec = Mockito.mock(Neo4jClient.UnboundRunnableSpec.class);
         Neo4jClient.RunnableSpec runnableSpec = Mockito.mock(Neo4jClient.RunnableSpec.class);
-        Neo4jClient.RunnableSpecTightToClient runnableSpecTight = Mockito.mock(Neo4jClient.RunnableSpecTightToClient.class);
         Neo4jClient.BindSpec bindSpec = Mockito.mock(Neo4jClient.BindSpec.class);
         Neo4jClient.RecordFetchSpec fetchSpec = Mockito.mock(Neo4jClient.RecordFetchSpec.class);
         
-        Mockito.when(neo4jClient.query(anyString())).thenReturn(runnableSpecTight);
-        Mockito.when(runnableSpecTight.bind(any())).thenReturn(bindSpec);
-        Mockito.when(bindSpec.to(anyString())).thenReturn(runnableSpecTight);
-        Mockito.when(runnableSpecTight.fetch()).thenReturn(fetchSpec);
+        Mockito.when(neo4jClient.query(anyString())).thenReturn(unboundRunnableSpec);
+        Mockito.when(unboundRunnableSpec.bind(any())).thenReturn(bindSpec);
+        Mockito.when(bindSpec.to(anyString())).thenReturn(runnableSpec);
+        Mockito.when(runnableSpec.fetch()).thenReturn(fetchSpec);
         
         // Simulate finding the node
         Mockito.when(fetchSpec.one()).thenReturn(Optional.of(Map.of("sourceId", anonymousId)));
