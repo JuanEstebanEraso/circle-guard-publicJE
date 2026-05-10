@@ -70,8 +70,8 @@ public class JwtTokenServiceTest {
         assertNotNull(claims.getExpiration());
         long expTime = claims.getExpiration().getTime();
         
-        // Assert expiration is within expected range (1 hour from now)
-        assertTrue(expTime >= before + expiration);
+        // JWT timestamps only have second precision. Allow for up to 1000ms of truncation difference.
+        assertTrue(expTime >= before + expiration - 1000);
         assertTrue(expTime <= after + expiration + 1000); // 1 sec tolerance
     }
 }
