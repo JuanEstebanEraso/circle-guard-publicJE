@@ -108,6 +108,10 @@ class HealthStatusServiceUnitTest {
         // Arrange
         String anonymousId = "resolve-user";
         
+        // Mock Redis
+        ValueOperations<String, String> valueOps = mock(ValueOperations.class);
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        
         // Mock the different parts of the chain called in resolveStatus
         when(neo4jClient.query(anyString()).bind(any()).to(anyString()).run()).thenReturn(null);
         

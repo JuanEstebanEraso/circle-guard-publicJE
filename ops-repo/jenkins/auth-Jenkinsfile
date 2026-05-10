@@ -4,6 +4,7 @@ pipeline {
         DOCKER_HUB_USER = "juanestebaneraso"
         SERVICE_NAME = "auth-service"
         DOCKER_HUB_CREDENTIALS = "docker-hub-credentials"
+        TESTCONTAINERS_RYUK_DISABLED = "true"
     }
     stages {
         stage('Checkout') {
