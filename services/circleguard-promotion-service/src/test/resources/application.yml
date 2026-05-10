@@ -10,9 +10,6 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
   
   neo4j:
     uri: bolt://localhost:7687
@@ -29,3 +26,16 @@ spring:
   
   kafka:
     bootstrap-servers: localhost:9092
+
+jwt:
+  secret: "my-super-secret-test-key-32-chars-long-promotion-service-123456"
+
+# Default values for all possible placeholders used in code
+vault:
+  hash-salt: "test-salt"
+  secret: "test-secret"
+
+# Story configurations
+promotion:
+  auto-threshold-seconds: 3600
+  encounter-window-days: 14

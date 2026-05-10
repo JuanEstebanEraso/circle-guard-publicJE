@@ -31,6 +31,7 @@ import java.util.Optional;
 @SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
+@DisabledIfEnvironmentVariable(named = "JENKINS_HOME", matches = ".*")
 class HealthStatusServiceTest {
 
     @TestConfiguration

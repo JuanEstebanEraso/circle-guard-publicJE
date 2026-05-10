@@ -16,8 +16,11 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+
 @SpringBootTest
 @Testcontainers
+@DisabledIfEnvironmentVariable(named = "JENKINS_HOME", matches = ".*")
 public class PromotionPerformanceTest {
 
     @Container

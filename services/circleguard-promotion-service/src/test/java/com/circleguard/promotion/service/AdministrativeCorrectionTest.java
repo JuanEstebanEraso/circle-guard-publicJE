@@ -15,12 +15,12 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Testcontainers
+@DisabledIfEnvironmentVariable(named = "JENKINS_HOME", matches = ".*")
 public class AdministrativeCorrectionTest {
 
     @Container

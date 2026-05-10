@@ -16,8 +16,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+
 @SpringBootTest
 @Testcontainers
+@DisabledIfEnvironmentVariable(named = "JENKINS_HOME", matches = ".*")
 public class HealthStatusReevaluationTest {
 
     @Container

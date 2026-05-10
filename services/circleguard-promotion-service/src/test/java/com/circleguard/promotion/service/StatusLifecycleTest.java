@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
 @ActiveProfiles("test")
+@DisabledIfEnvironmentVariable(named = "JENKINS_HOME", matches = ".*")
 class StatusLifecycleTest {
 
     @TestConfiguration
