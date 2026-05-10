@@ -32,7 +32,7 @@ public class PromotionKafkaIntegrationTest {
     @MockBean
     private KafkaTemplate<String, Object> kafkaTemplate;
 
-    @MockBean
+    @MockBean(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
     private Neo4jClient neo4jClient;
 
     @MockBean
@@ -52,16 +52,14 @@ public class PromotionKafkaIntegrationTest {
     void whenStatusChanges_thenKafkaMessageIsSent() {
         String anonymousId = UUID.randomUUID().toString();
         
-        // Mock Neo4j Client behavior to simulate a successful query
-        Neo4jClient.UnboundRunnableSpec unboundRunnableSpec = Mockito.mock(Neo4jClient.UnboundRunnableSpec.class);
-        Neo4jClient.RunnableSpec runnableSpec = Mockito.mock(Neo4jClient.RunnableSpec.class);
-        Neo4jClient.BindSpec bindSpec = Mockito.mock(Neo4jClient.BindSpec.class);
+        // Mock Neo4j Client behavior using Deep Stubs to avoid complex generic type issues
         Neo4jClient.RecordFetchSpec fetchSpec = Mockito.mock(Neo4jClient.RecordFetchSpec.class);
         
-        Mockito.when(neo4jClient.query(anyString())).thenReturn(unboundRunnableSpec);
-        Mockito.when(unboundRunnableSpec.bind(any())).thenReturn(bindSpec);
-        Mockito.when(bindSpec.to(anyString())).thenReturn(runnableSpec);
-        Mockito.when(runnableSpec.fetch()).thenReturn(fetchSpec);
+        Mockito.when(neo4jClient.query(anyString())
+                .bind(any()).to(anyString())
+                .bind(any()).to(anyString())
+                .bind(any()).to(anyString())
+                .fetch()).thenReturn(fetchSpec);
         
         // Simulate finding the node
         Mockito.when(fetchSpec.one()).thenReturn(Optional.of(Map.of("sourceId", anonymousId)));
