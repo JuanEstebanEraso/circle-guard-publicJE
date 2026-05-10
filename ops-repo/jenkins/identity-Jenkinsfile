@@ -41,8 +41,9 @@ pipeline {
                     sh "kubectl create namespace dev --dry-run=client -o yaml | kubectl apply -f -"
                     sh "kubectl apply -f ops-repo/k8s/common-config.yaml --namespace dev"
                     sh "kubectl apply -f ops-repo/k8s/identity-deployment.yaml --namespace dev"
+                    sh "kubectl set image deployment/${SERVICE_NAME} ${SERVICE_NAME}=${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID} --namespace dev"
                     echo "🔍 Verificando despliegue en DEV..."
-                    sh "kubectl rollout status deployment/${SERVICE_NAME} --namespace dev --timeout=90s"
+                    sh "kubectl rollout status deployment/${SERVICE_NAME} --namespace dev --timeout=120s"
                 }
             }
         }
