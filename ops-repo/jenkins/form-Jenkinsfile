@@ -14,14 +14,14 @@ pipeline {
         stage('Compile (Dev)') {
             steps {
                 echo "🚀 Compilando microservicio..."
-                sh './gradlew :services:circleguard-form-service:classes'
+                sh './gradlew :services:circleguard-form-service:classes --no-daemon'
             }
         }
 
         stage('Unit Tests (Dev)') {
             steps {
                 echo "🧪 Ejecutando Pruebas Unitarias..."
-                sh './gradlew :services:circleguard-form-service:test'
+                sh './gradlew :services:circleguard-form-service:test --no-daemon'
             }
         }
         stage('Docker Build & Push') {
