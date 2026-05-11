@@ -20,3 +20,7 @@ ldap:
   host: localhost
   port: 389
   base: dc=circleguard,dc=edu
+
+qr:
+  secret: "test-qr-secret-key-32-chars-long-123456"
+  expiration: 300
