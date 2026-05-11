@@ -34,19 +34,38 @@ pipeline {
 
         stage('Initialize Databases') {
             steps {
-                echo "🗄️ Creando bases de datos de los microservicios..."
+                echo "🗄️ Inicializando bases de datos de los microservicios..."
                 withKubeConfig([credentialsId: "${KUBECONFIG_CREDENTIALS}"]) {
                     sh '''
+                        # 1. Obtener nombre del Pod
                         POD=$(kubectl --insecure-skip-tls-verify get pod -l app=circleguard-postgres -o jsonpath='{.items[0].metadata.name}')
-                        echo "Pod de Postgres: $POD"
+                        echo "🔍 Verificando Pod de Postgres: $POD"
 
-                        for DB in circleguard_auth circleguard_identity circleguard_promotion circleguard_dashboard circleguard_form; do
-                            echo "Creando base de datos: $DB"
-                            kubectl --insecure-skip-tls-verify exec $POD -- psql -U admin -d postgres -c "SELECT 1 FROM pg_database WHERE datname='$DB'" | grep -q 1 || \
-                            kubectl --insecure-skip-tls-verify exec $POD -- psql -U admin -d postgres -c "CREATE DATABASE $DB;"
+                        # 2. Esperar a que Postgres acepte conexiones (máximo 60s)
+                        echo "⏳ Esperando a que el motor de Postgres acepte conexiones..."
+                        for i in {1..12}; do
+                            if kubectl --insecure-skip-tls-verify exec $POD -- pg_isready -U admin -d postgres; then
+                                echo "✅ Postgres está listo para recibir comandos."
+                                break
+                            fi
+                            echo "... esperando 5s más ($i/12)"
+                            sleep 5
                         done
 
-                        echo "✅ Bases de datos verificadas:"
+                        # 3. Crear bases de datos de forma robusta
+                        DATABASES="circleguard_auth circleguard_identity circleguard_promotion circleguard_dashboard circleguard_form"
+                        for DB in $DATABASES; do
+                            echo "⚙️ Procesando base de datos: $DB"
+                            EXISTS=$(kubectl --insecure-skip-tls-verify exec $POD -- psql -U admin -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DB'")
+                            if [ "$EXISTS" = "1" ]; then
+                                echo "   [SKIP] La base de datos '$DB' ya existe."
+                            else
+                                echo "   [CREATE] Creando base de datos '$DB'..."
+                                kubectl --insecure-skip-tls-verify exec $POD -- psql -U admin -d postgres -c "CREATE DATABASE $DB;"
+                            fi
+                        done
+
+                        echo "📊 Estado final de las bases de datos:"
                         kubectl --insecure-skip-tls-verify exec $POD -- psql -U admin -d postgres -c "\\l" | grep circleguard
                     '''
                 }
