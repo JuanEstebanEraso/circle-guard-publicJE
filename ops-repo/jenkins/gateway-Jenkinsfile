@@ -17,7 +17,7 @@ pipeline {
         stage('Compile (Dev)') {
             steps {
                 echo "🚀 Compilando microservicio..."
-                sh './gradlew :services:circleguard-gateway-service:classes --no-daemon'
+                sh './gradlew :services:circleguard-gateway-service:bootJar --no-daemon'
             }
         }
 
@@ -92,7 +92,7 @@ pipeline {
             steps {
                 echo "📝 Generando Release Notes..."
                 sh 'chmod +x ops-repo/jenkins/scripts/generate-release-notes.sh'
-                sh './ops-repo/jenkins/scripts/generate-release-notes.sh "CircleGuard Gateway" ${env.BUILD_ID}-${env.BRANCH_NAME}'
+                sh "./ops-repo/jenkins/scripts/generate-release-notes.sh \"CircleGuard Gateway\" ${env.BUILD_ID}-${env.BRANCH_NAME}"
                 // Aquí el archivo Markdown generado podría enviarse por email o subirse a un Wiki.
                 archiveArtifacts artifacts: 'ReleaseNotes-*.md', allowEmptyArchive: true
             }
