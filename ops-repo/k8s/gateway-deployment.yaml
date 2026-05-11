@@ -18,7 +18,7 @@ spec:
         image: juanestebaneraso/gateway-service:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+        - containerPort: 8087
         envFrom:
         - configMapRef:
             name: circleguard-config
@@ -33,6 +33,6 @@ spec:
     app: gateway-service
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 8080
+      port: 8080
+      targetPort: 8087
   type: LoadBalancer
