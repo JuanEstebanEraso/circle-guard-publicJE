@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+    environment {
+        KUBECONFIG_CREDENTIALS = 'kubeconfig'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Create Namespaces') {
+            steps {
+                echo "📦 Creando namespaces de Kubernetes..."
+                withKubeConfig([credentialsId: "${KUBECONFIG_CREDENTIALS}"]) {
+                    sh "kubectl --insecure-skip-tls-verify create namespace dev --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
+                    sh "kubectl --insecure-skip-tls-verify create namespace stage --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
+                    sh "kubectl --insecure-skip-tls-verify create namespace prod --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
+                }
+            }
+        }
+
+        stage('Deploy Infrastructure') {
+            steps {
+                echo "🏗️ Desplegando infraestructura (Postgres, Kafka, Redis, LDAP, Zookeeper)..."
+                withKubeConfig([credentialsId: "${KUBECONFIG_CREDENTIALS}"]) {
+                    sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/infra-dev.yaml"
+                    echo "⏳ Esperando a que Postgres esté listo..."
+                    sh "kubectl --insecure-skip-tls-verify wait --for=condition=available deployment/circleguard-postgres --timeout=120s"
+                }
+            }
+        }
+
+        stage('Initialize Databases') {
+            steps {
+                echo "🗄️ Creando bases de datos de los microservicios..."
+                withKubeConfig([credentialsId: "${KUBECONFIG_CREDENTIALS}"]) {
+                    sh '''
+                        POD=$(kubectl --insecure-skip-tls-verify get pod -l app=circleguard-postgres -o jsonpath='{.items[0].metadata.name}')
+                        echo "Pod de Postgres: $POD"
+
+                        for DB in circleguard_auth circleguard_identity circleguard_promotion circleguard_dashboard circleguard_form; do
+                            echo "Creando base de datos: $DB"
+                            kubectl --insecure-skip-tls-verify exec $POD -- psql -U admin -d postgres -c "SELECT 1 FROM pg_database WHERE datname='$DB'" | grep -q 1 || \
+                            kubectl --insecure-skip-tls-verify exec $POD -- psql -U admin -d postgres -c "CREATE DATABASE $DB;"
+                        done
+
+                        echo "✅ Bases de datos verificadas:"
+                        kubectl --insecure-skip-tls-verify exec $POD -- psql -U admin -d postgres -c "\\l" | grep circleguard
+                    '''
+                }
+            }
+        }
+
+        stage('Apply ConfigMaps') {
+            steps {
+                echo "⚙️ Aplicando configuración común a todos los namespaces..."
+                withKubeConfig([credentialsId: "${KUBECONFIG_CREDENTIALS}"]) {
+                    sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/common-config.yaml --namespace dev"
+                    sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/common-config.yaml --namespace stage"
+                    sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/common-config.yaml --namespace prod"
+                }
+            }
+        }
+
+        stage('Verify Infrastructure') {
+            steps {
+                echo "🔍 Verificando estado de la infraestructura..."
+                withKubeConfig([credentialsId: "${KUBECONFIG_CREDENTIALS}"]) {
+                    sh "kubectl --insecure-skip-tls-verify get pods -n default"
+                    sh "kubectl --insecure-skip-tls-verify get namespaces"
+                    sh "kubectl --insecure-skip-tls-verify get configmaps -n dev"
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "✅ Infraestructura desplegada exitosamente. Namespaces y bases de datos listos."
+        }
+        failure {
+            echo "❌ Error al desplegar la infraestructura. Revisar logs."
+        }
+    }
+}
