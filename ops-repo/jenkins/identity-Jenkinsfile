@@ -13,7 +13,7 @@ pipeline {
         stage('Compile (Dev)') {
             steps {
                 echo "🚀 Compilando microservicio..."
-                sh './gradlew :services:circleguard-identity-service:classes --no-daemon'
+                sh './gradlew :services:circleguard-identity-service:bootJar --no-daemon'
             }
         }
 
