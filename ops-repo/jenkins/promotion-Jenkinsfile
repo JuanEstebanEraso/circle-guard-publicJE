@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("https://index.docker.io/v1/", "${DOCKER_HUB_CREDENTIALS}") {
-                        def customImage = docker.build("${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID}", "-f services/circleguard-promotion-service/Dockerfile .")
+                        def customImage = docker.build("${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID}-${env.BRANCH_NAME}", "-f services/circleguard-promotion-service/Dockerfile .")
                         customImage.push()
                         customImage.push("latest")
                     }
@@ -41,7 +41,7 @@ pipeline {
                     sh "kubectl --insecure-skip-tls-verify create namespace dev --dry-run=client -o yaml | kubectl --insecure-skip-tls-verify apply -f -"
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/common-config.yaml --namespace dev"
                     sh "kubectl --insecure-skip-tls-verify apply -f ops-repo/k8s/promotion-deployment.yaml --namespace dev"
-                    sh "kubectl --insecure-skip-tls-verify set image deployment/${SERVICE_NAME} ${SERVICE_NAME}=${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID} --namespace dev"
+                    sh "kubectl --insecure-skip-tls-verify set image deployment/${SERVICE_NAME} ${SERVICE_NAME}=${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID}-${env.BRANCH_NAME} --namespace dev"
                     echo "🔍 Verificando despliegue en DEV..."
                     sh "kubectl --insecure-skip-tls-verify rollout status deployment/${SERVICE_NAME} --namespace dev --timeout=120s"
                 }
@@ -68,7 +68,7 @@ pipeline {
             when { branch 'master' }
             steps {
                 sh 'chmod +x ops-repo/jenkins/scripts/generate-release-notes.sh'
-                sh './ops-repo/jenkins/scripts/generate-release-notes.sh "CircleGuard Promotion" ${env.BUILD_ID}'
+                sh './ops-repo/jenkins/scripts/generate-release-notes.sh "CircleGuard Promotion" ${env.BUILD_ID}-${env.BRANCH_NAME}'
                 archiveArtifacts artifacts: 'ReleaseNotes-*.md'
             }
         }

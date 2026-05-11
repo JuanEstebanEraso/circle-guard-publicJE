@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("https://index.docker.io/v1/", "${DOCKER_HUB_CREDENTIALS}") {
-                        def customImage = docker.build("${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID}", "-f services/circleguard-notification-service/Dockerfile .")
+                        def customImage = docker.build("${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID}-${env.BRANCH_NAME}", "-f services/circleguard-notification-service/Dockerfile .")
                         customImage.push()
                         customImage.push("latest")
                     }
@@ -67,7 +67,7 @@ pipeline {
             when { branch 'master' }
             steps {
                 sh 'chmod +x ops-repo/jenkins/scripts/generate-release-notes.sh'
-                sh './ops-repo/jenkins/scripts/generate-release-notes.sh "CircleGuard Notification" ${env.BUILD_ID}'
+                sh './ops-repo/jenkins/scripts/generate-release-notes.sh "CircleGuard Notification" ${env.BUILD_ID}-${env.BRANCH_NAME}'
                 archiveArtifacts artifacts: 'ReleaseNotes-*.md'
             }
         }
