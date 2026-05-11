@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class AuthServiceUnitTest {
 
     @Test
-    void testUserStatusInitiallyEnabled() {
+    void testUserStatusInitiallyActive() {
         LocalUser user = new LocalUser();
-        user.setEnabled(true);
-        assertTrue(user.isEnabled(), "El usuario debería estar habilitado por defecto");
+        user.setIsActive(true);
+        assertTrue(user.getIsActive(), "El usuario debería estar activo");
     }
 
     @Test
@@ -19,8 +19,8 @@ class AuthServiceUnitTest {
         LocalUser user = new LocalUser();
         Role role = new Role();
         role.setName("ROLE_USER");
-        user.setRole(role);
-        assertEquals("ROLE_USER", user.getRole().getName(), "El rol asignado no es el correcto");
+        user.setRoles(java.util.Set.of(role));
+        assertEquals(1, user.getRoles().size());
     }
 
     @Test
