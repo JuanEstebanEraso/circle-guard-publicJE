@@ -4,19 +4,19 @@ metadata:
   name: circleguard-config
 data:
   # Database Configuration
-  POSTGRES_HOST: "circleguard-postgres"
+  POSTGRES_HOST: "circleguard-postgres.default.svc.cluster.local"
   POSTGRES_PORT: "5432"
   
   # Neo4j Configuration
-  NEO4J_URI: "bolt://circleguard-neo4j:7687"
+  NEO4J_URI: "bolt://circleguard-neo4j.default.svc.cluster.local:7687"
   
   # Kafka Configuration
-  KAFKA_BOOTSTRAP_SERVERS: "circleguard-kafka:9092"
+  KAFKA_BOOTSTRAP_SERVERS: "circleguard-kafka.default.svc.cluster.local:9092"
   
   # Redis Configuration
-  REDIS_HOST: "circleguard-redis"
+  REDIS_HOST: "circleguard-redis.default.svc.cluster.local"
   REDIS_PORT: "6379"
 
   # LDAP Configuration
-  LDAP_HOST: "circleguard-ldap"
+  LDAP_HOST: "circleguard-ldap.default.svc.cluster.local"
   LDAP_PORT: "389"

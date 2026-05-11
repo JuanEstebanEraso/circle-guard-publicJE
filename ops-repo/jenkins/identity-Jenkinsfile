@@ -13,14 +13,14 @@ pipeline {
         stage('Compile (Dev)') {
             steps {
                 echo "🚀 Compilando microservicio..."
-                sh './gradlew :services:circleguard-identity-service:bootJar --no-daemon'
+                sh './gradlew :services:circleguard-identity-service:bootJar --no-daemon -Dorg.gradle.jvmargs="-Xmx256m -XX:MaxMetaspaceSize=128m"'
             }
         }
 
         stage('Unit Tests (Dev)') {
             steps {
                 echo "🧪 Ejecutando Pruebas Unitarias..."
-                sh './gradlew :services:circleguard-identity-service:test --no-daemon'
+                sh './gradlew :services:circleguard-identity-service:test --no-daemon -Dorg.gradle.jvmargs="-Xmx256m -XX:MaxMetaspaceSize=128m"'
             }
         }
         stage('Docker Build & Push') {
