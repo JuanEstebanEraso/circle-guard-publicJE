@@ -68,7 +68,7 @@ pipeline {
             when { branch 'master' }
             steps {
                 sh 'chmod +x ops-repo/jenkins/scripts/generate-release-notes.sh'
-                sh './ops-repo/jenkins/scripts/generate-release-notes.sh "CircleGuard Identity" ${env.BUILD_ID}-${env.BRANCH_NAME}'
+                sh "./ops-repo/jenkins/scripts/generate-release-notes.sh \"CircleGuard Identity\" ${env.BUILD_ID}-${env.BRANCH_NAME}"
                 archiveArtifacts artifacts: 'ReleaseNotes-*.md'
             }
         }
