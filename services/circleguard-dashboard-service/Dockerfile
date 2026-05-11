@@ -3,7 +3,7 @@ WORKDIR /app
 COPY build.gradle.kts settings.gradle.kts gradlew ./
 COPY gradle ./gradle
 COPY services ./services
-RUN ./gradlew :services:circleguard-dashboard-service:bootJar -x test --no-daemon -Dorg.gradle.jvmargs="-Xmx256m -XX:MaxMetaspaceSize=128m"
+RUN ./gradlew :services:circleguard-dashboard-service:bootJar -x test --no-daemon -Dorg.gradle.jvmargs="-Xmx512m -XX:MaxMetaspaceSize=384m"
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app

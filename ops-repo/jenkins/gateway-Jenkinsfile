@@ -17,7 +17,7 @@ pipeline {
         stage('Compile (Dev)') {
             steps {
                 echo "🚀 Compilando microservicio..."
-                sh './gradlew :services:circleguard-gateway-service:bootJar --no-daemon -Dorg.gradle.jvmargs="-Xmx256m -XX:MaxMetaspaceSize=128m"'
+                sh './gradlew :services:circleguard-gateway-service:bootJar --no-daemon -Dorg.gradle.jvmargs="-Xmx512m -XX:MaxMetaspaceSize=384m"'
             }
         }
 
