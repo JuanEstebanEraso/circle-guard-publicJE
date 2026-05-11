@@ -32,7 +32,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("https://index.docker.io/v1/", "${DOCKER_HUB_CREDENTIALS}") {
-                        def customImage = docker.build("${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID}", "-f services/circleguard-gateway-service/Dockerfile .")
+                        def customImage = docker.build("${DOCKER_HUB_USER}/${SERVICE_NAME}:${env.BUILD_ID}-${env.BRANCH_NAME}", "-f services/circleguard-gateway-service/Dockerfile .")
                         customImage.push()
                         customImage.push("latest")
                     }
@@ -92,7 +92,7 @@ pipeline {
             steps {
                 echo "📝 Generando Release Notes..."
                 sh 'chmod +x ops-repo/jenkins/scripts/generate-release-notes.sh'
-                sh './ops-repo/jenkins/scripts/generate-release-notes.sh "CircleGuard Gateway" ${env.BUILD_ID}'
+                sh './ops-repo/jenkins/scripts/generate-release-notes.sh "CircleGuard Gateway" ${env.BUILD_ID}-${env.BRANCH_NAME}'
                 // Aquí el archivo Markdown generado podría enviarse por email o subirse a un Wiki.
                 archiveArtifacts artifacts: 'ReleaseNotes-*.md', allowEmptyArchive: true
             }
